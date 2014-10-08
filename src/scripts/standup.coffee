@@ -34,20 +34,17 @@ module.exports = (robot) ->
     else
       msg.send "Oops, can't find anyone with 'a #{group} member' role!"
 
-  robot.respond /(?:that\'s it|next(?: person)?|done) *$/i, (msg) ->
+  robot.respond /(?:that\'s it|next(?: person)?|done|skip) *$/i, (msg) ->
     unless robot.brain.data.standup?[msg.message.user.room]
       return
-    if robot.brain.data.standup[msg.message.user.room].current.id isnt msg.message.user.id
-      msg.reply "but it's not your turn! Use skip [someone] or next [someone] instead."
-    else
-      nextPerson robot, msg.message.user.room, msg
+    nextPerson robot, msg.message.user.room, msg
 
   robot.respond /(skip|next) (.*) *$/i, (msg) ->
     unless robot.brain.data.standup?[msg.message.user.room]
       return
 
     is_skip = msg.match[1] == 'skip'
-    users = robot.usersForFuzzyName msg.match[2]
+    users = robot.brain.usersForFuzzyName msg.match[2]
     if users.length is 1
       skip = users[0]
       standup = robot.brain.data.standup[msg.message.user.room]
