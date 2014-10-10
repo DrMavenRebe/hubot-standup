@@ -94,7 +94,7 @@ nextPerson = (robot, room, msg) ->
     delete robot.brain.data.standup[room]
   else
     standup.current = standup.remaining.shift()
-    msg.send "#{addressUser(standup.current.name, robot.adapter)} your turn"
+    msg.send "#{addressUser(standup.current.mention_name, robot.adapter)} your turn"
 
 addressUser = (name, adapter) ->
   className = adapter.__proto__.constructor.name
