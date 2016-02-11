@@ -1,13 +1,23 @@
-# Agile standup bot ala tender
+# Description:
+#   Agile standup bot ala tender
 #
-# standup? - show help for standup
+# Commands:
+#   hubot standup? - show help for the standup
+#   hubot <who> is a member of <team> - tell hubot who is the member of <team>'s standup
+#   hubot standup for <team> - start the standup for <team>
+#   hubot cancel standup - cancel the current standup
+#   hubot next - say when your updates for the standup is done
+#   hubot skip <who> - skip someone when they're not available
+#
+# Author:
+#   @miyagawa
 
 module.exports = (robot) ->
   robot.respond /(?:cancel|stop) standup *$/i, (msg) ->
     delete robot.brain.data.standup?[msg.message.user.room]
     msg.send "Standup cancelled"
 
-  robot.respond /standup for (.*) *$/i, (msg) ->
+  robot.respond /standup for (.*?) *$/i, (msg) ->
     room  = msg.message.user.room
     group = msg.match[1].trim()
     if robot.brain.data.standup?[room]
@@ -17,7 +27,7 @@ module.exports = (robot) ->
     attendees = []
     for own key, user of robot.brain.data.users
       roles = user.roles or [ ]
-      if "a #{group} member" in roles or "an #{group} member" in roles or "a member of #{group}" in roles
+      if group in roles or "a #{group} member" in roles or "an #{group} member" in roles or "a member of #{group}" in roles
         attendees.push user
     if attendees.length > 0
       robot.brain.data.standup or= {}
@@ -39,7 +49,7 @@ module.exports = (robot) ->
       return
     nextPerson robot, msg.message.user.room, msg
 
-  robot.respond /(skip|next) (.*) *$/i, (msg) ->
+  robot.respond /(skip|next) (.*?) *$/i, (msg) ->
     unless robot.brain.data.standup?[msg.message.user.room]
       return
 
@@ -80,9 +90,13 @@ module.exports = (robot) ->
     robot.brain.data.standup[msg.message.user.room].log.push { message: msg.message, time: new Date().getTime() }
 
 shuffleArrayClone = (array) ->
-  cloned = []
-  for i in (array.sort -> 0.5 - Math.random())
-    cloned.push i
+  cloned = array.slice(0)
+  i = cloned.length
+  while --i > 0
+    j = ~~(Math.random() * (i + 1))
+    t = cloned[j]
+    cloned[j] = cloned[i]
+    cloned[i] = t
   cloned
 
 nextPerson = (robot, room, msg) ->
@@ -94,13 +108,14 @@ nextPerson = (robot, room, msg) ->
     delete robot.brain.data.standup[room]
   else
     standup.current = standup.remaining.shift()
-    msg.send "#{addressUser(standup.current.mention_name, robot.adapter)} your turn"
+    msg.send "#{addressUser(standup.current, robot.adapter)} your turn"
 
-addressUser = (name, adapter) ->
+addressUser = (user, adapter) ->
   className = adapter.__proto__.constructor.name
   switch className
-    when "HipChat" then "@#{name.replace(' ', '')}"
-    else "#{name}:"
+    when "HipChat" then "@#{user.name.replace(' ', '')}"
+    when "SlackBot" then "<@#{user.id}>"
+    else "#{user.name}:"
 
 calcMinutes = (milliseconds) ->
   seconds = Math.floor(milliseconds / 1000)
