@@ -20,6 +20,12 @@ hubot: Ok, john is an engineering member
 miyagawa: hubot davidlee is an engineering member
 hubot: Ok, davidlee is an engineering member
 ```
+Or if using [hubot-auth](https://www.npmjs.com/package/hubot-auth):
+
+```
+miyagawa: hubot miyagawa has engineering role
+hubot: OK, miyagawa has the engineering role
+```
 
 You can create as many teams as you want.
 
@@ -65,13 +71,15 @@ hubot: All done! Standup was 5 minutes and 24 seconds.
 
 This hubot script depends on `roles.coffee` script. You're recommended to use `redis-brain.coffee` to persist the team information.
 
-In your `package.json`, add the following line to the dependencies:
+You can use the [hubot-auth](https://www.npmjs.com/package/hubot-auth) module to manage roles as well.
 
-```
-   "hubot-standup": "git://github.com/miyagawa/hubot-standup.git"
+In your project directory, run the following:
+
+```bash
+npm install hubot-standup --save
 ```
 
-Then run `npm install` and add `hubot-standup` to `external-scripts.json`. E.g.:
+Then add `hubot-standup` to `external-scripts.json`, e.g.
 
 ```
 ["hubot-standup"]
@@ -79,9 +87,9 @@ Then run `npm install` and add `hubot-standup` to `external-scripts.json`. E.g.:
 
 ### Yammer
 
-By symlinking to `standup-yammer.coffee` in addition, the bot will post the standup archive to Yammer. You need to set a valid Yammer OAuth2 token to `HUBOT_STANDUP_YAMMER_TOKEN` environment variable.
+The bot can also post the standup archive to Yammer. You need to set a valid Yammer OAuth2 token to `HUBOT_STANDUP_YAMMER_TOKEN` environment variable.
 
-Here's how to get a valid Yammer OAuth2 token with the standard OAuth2 authorization flow. 
+Here's how to get a valid Yammer OAuth2 token with the standard OAuth2 authorization flow.
 
 See [Yammer documentation](https://developer.yammer.com/api/oauth2.html) for more details.
 
@@ -104,6 +112,3 @@ Now set the token to `HUBOT_STANDUP_YAMMER_TOKEN` and Hubot will ask which group
 ## License
 
 MIT License
-
-
-
